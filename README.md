@@ -63,6 +63,8 @@ Calculating the non-linear force foree field with current iteration based on the
 -- change the keywords' name.
 -- change the input format of the keywords as the fortran namelist.
 -- change the log field into CSV format.
+- Version 27: 2022 Jul 09, changed by Kai E. Yang.
+-- add precision_flag to control the IO precision, default value is 'double', you can change to 'float'
 
 ## How to use it
 1, set the directory of the FFTW3 lib, e.g.,
@@ -138,6 +140,7 @@ The format of the input.par file is the namelist in fortran, e.g.,
     STARTLOOP=1,
     ALPHA_ERROR=F,
     MIN_STEP=5.0E-002,
+    precision_flag='float'
  /
 ```
 The above are default settings for the keywords, which is used to control the calculation.
