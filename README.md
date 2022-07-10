@@ -142,9 +142,11 @@ The format of the input.par file is the namelist in fortran, e.g.,
     MIN_STEP=5.0E-002,
     precision_flag='float'
  /
+
 ```
 The above are default settings for the keywords, which is used to control the calculation.
 The keywords are classified as two groups, the group FILENAME_PAR contains all the keynames for the io file and data format. The group CAL_PAR contains all the keywords to control the calculations.
+## meaning of parameters:
 - FILENAME_PAR
 -- OUTFILENAME, the directory of the output result.
 -- BZ0NAME, the file name of BCs of the Bz value.
