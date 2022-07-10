@@ -148,36 +148,36 @@ The above are default settings for the keywords, which is used to control the ca
 The keywords are classified as two groups, the group FILENAME_PAR contains all the keynames for the io file and data format. The group CAL_PAR contains all the keywords to control the calculations.
 ## meaning of parameters:
 - FILENAME_PAR
--- OUTFILENAME, the directory of the output result.
--- BZ0NAME, the file name of BCs of the Bz value.
--- INDATAFORMAT, data format.
--- ALPHANAME, file name of BCs of the alpha value
--- ALPHAERRNAME, file name of the BCs of the sigma of alpha.
--- RESTARTNAME, name of the restart file that contains a 3D B field.
+- OUTFILENAME, the directory of the output result.
+- BZ0NAME, the file name of BCs of the Bz value.
+- INDATAFORMAT, data format.
+- ALPHANAME, file name of BCs of the alpha value
+- ALPHAERRNAME, file name of the BCs of the sigma of alpha.
+- RESTARTNAME, name of the restart file that contains a 3D B field.
 - CAL_PAR
--- NUMTHREADS, the number of threads used for the parallization.
--- DIMX, numbers in X dimension.
--- DIMY, numbers in Y dimension.
--- DIMZ, numbers in Z dimension.
--- DELTA_S, step length for the field line integral, in the unit of pixel.
--- METHOD, a string indicate the mathod for Poisson and Laplace eqaution.
--- STEPMETHOD, method for the field line integral.
--- NCYCLE, how many cycles for the self-consistent solution, if 1, indicate NO self-consistent solution.
--- CHECK, a logical flag to determine whether output the electric current, left_box (indicate the field line is closed or not), 3d alpha value assigned by the field line tracing, and the electric current associated magnetic field.
--- RESTART, if this parameter is set True, the program will restart from an existed magnetic field, stored in the file RestartName.
--- SAVNUM, the step number for saving a snapshot of the calculation. Actually, the default value is set as the same as the NCYCLE.
--- FACTOR, the factor to update the magnetic field, which makes the calculation stable, i.e., B_new=B_new*factor+B_old*(1-factor). It means the larger factor, the faster the magnetic field updated.
--- TOP_CLOSED, if it is true, the top boundary is chosen as a closed boundary, i.e., Bz at top = 0. Othervise the Bz will vanish at infinity.
--- SPK_FLAG, if true, the program will reduce the spikes in the Bx and By on the bottom.
--- SPK, the value of the reducing spikes.
--- PERIODIC, if true, the field lines will be traced periodically on the side boundaries.
--- AOUT, if true, the associated vector potential of the magnetic field will be written in OUTFILENAME.
--- POLARITY, the value of this parameter is 1 or -1, 1 means the initial cycle is the possitive solution, -1 means the initial cycls is negative solution.
--- NLOOP, the iteration number in each polarity cycle.
--- STARTCYC, if the program is restart from some existed field, the STARTCYC can be changed, which reset the numbers in the written results. It should be smaller than NCYCLE.
--- STARTLOOP, if the program is restart from some existed field, the STARTLOOP can be changed, which reset the numbers in the written results. It should be smaller than NLOOP.
--- ALPHA_ERROR, this logical flag indicate whether use the sigma values stored in ALPHAERRNAME
--- MIN_STEP, minimum step size of the field line tracing in the unit of pixel.
+- NUMTHREADS, the number of threads used for the parallization.
+- DIMX, numbers in X dimension.
+- DIMY, numbers in Y dimension.
+- DIMZ, numbers in Z dimension.
+- DELTA_S, step length for the field line integral, in the unit of pixel.
+- METHOD, a string indicate the mathod for Poisson and Laplace eqaution.
+- STEPMETHOD, method for the field line integral.
+- NCYCLE, how many cycles for the self-consistent solution, if 1, indicate NO self-consistent solution.
+- CHECK, a logical flag to determine whether output the electric current, left_box (indicate the field line is closed or not), 3d alpha value assigned by the field line tracing, and the electric current associated magnetic field.
+- RESTART, if this parameter is set True, the program will restart from an existed magnetic field, stored in the file RestartName.
+- SAVNUM, the step number for saving a snapshot of the calculation. Actually, the default value is set as the same as the NCYCLE.
+- FACTOR, the factor to update the magnetic field, which makes the calculation stable, i.e., B_new=B_new*factor+B_old*(1-factor). It means the larger factor, the faster the magnetic field updated.
+- TOP_CLOSED, if it is true, the top boundary is chosen as a closed boundary, i.e., Bz at top = 0. Othervise the Bz will vanish at infinity.
+- SPK_FLAG, if true, the program will reduce the spikes in the Bx and By on the bottom.
+- SPK, the value of the reducing spikes.
+- PERIODIC, if true, the field lines will be traced periodically on the side boundaries.
+- AOUT, if true, the associated vector potential of the magnetic field will be written in OUTFILENAME.
+- POLARITY, the value of this parameter is 1 or -1, 1 means the initial cycle is the possitive solution, -1 means the initial cycls is negative solution.
+- NLOOP, the iteration number in each polarity cycle.
+- STARTCYC, if the program is restart from some existed field, the STARTCYC can be changed, which reset the numbers in the written results. It should be smaller than NCYCLE.
+- STARTLOOP, if the program is restart from some existed field, the STARTLOOP can be changed, which reset the numbers in the written results. It should be smaller than NLOOP.
+- ALPHA_ERROR, this logical flag indicate whether use the sigma values stored in ALPHAERRNAME
+- MIN_STEP, minimum step size of the field line tracing in the unit of pixel.
 
 ## Other Note:
 This parallel version is based on FORTRAN OPENMP.
