@@ -147,14 +147,14 @@ The format of the input.par file is the namelist in fortran, e.g.,
 The above are default settings for the keywords, which is used to control the calculation.
 The keywords are classified as two groups, the group FILENAME_PAR contains all the keynames for the io file and data format. The group CAL_PAR contains all the keywords to control the calculations.
 ## meaning of parameters:
-- FILENAME_PAR
+- FILENAME_PAR, the name of the fortran namelist block. This block control the files' name.
 - OUTFILENAME, the directory of the output result.
 - BZ0NAME, the file name of BCs of the Bz value.
 - INDATAFORMAT, data format.
 - ALPHANAME, file name of BCs of the alpha value
 - ALPHAERRNAME, file name of the BCs of the sigma of alpha.
 - RESTARTNAME, name of the restart file that contains a 3D B field.
-- CAL_PAR
+- CAL_PAR, the name of the fortran namelist block. This block control calculation process.
 - NUMTHREADS, the number of threads used for the parallization.
 - DIMX, numbers in X dimension.
 - DIMY, numbers in Y dimension.
@@ -178,6 +178,7 @@ The keywords are classified as two groups, the group FILENAME_PAR contains all t
 - STARTLOOP, if the program is restart from some existed field, the STARTLOOP can be changed, which reset the numbers in the written results. It should be smaller than NLOOP.
 - ALPHA_ERROR, this logical flag indicate whether use the sigma values stored in ALPHAERRNAME
 - MIN_STEP, minimum step size of the field line tracing in the unit of pixel.
+- precision_flag, the precision of IO, default is 'double', 'float' is optional.
 
 ## Other Note:
 This parallel version is based on FORTRAN OPENMP.
