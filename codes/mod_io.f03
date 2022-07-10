@@ -38,6 +38,7 @@ contains
     startloop  = 1
     alpha_error=.false.
     np_lenght_weight=.false.
+    precision_flag = 'double'
 
     ! read parameters   
     write(*,'(A)')'| = = = = = = = = = = = = = = = = = = = = = = = = = = = = ='
@@ -195,15 +196,28 @@ contains
   subroutine read_b0
     logical          :: alive
     character(len=144):: readname
-
+    real(SP),dimension(:,:,:,:),allocatable :: bxyz0_tmp
+    if (trim(precision_flag).eq.'float')then
+      allocate(bxyz0_tmp(1:dimx,1:dimy,1:dimz,1:3))
+    endif
     write(readname,'(A,i4.4,A,i4.4,''.dat'')') trim(OutFileName)//"B_",0,'_',0
     inquire(file=readname,exist=alive)
     if (alive) then
-      write(*,'(A)')'| Loading B0 ...'
-      open(4,File=readname,Access="stream",Form = "unformatted" )
-      write(4) bxyz0(1:dimx,1:dimy,1:dimz,1:3)
-      close(4)
-      write(*,'(A)')'| Data sucessfully loaded !'
+      if (trim(precision_flag).eq.'float')then
+        write(*,'(A)')'| Loading B0 ...'
+        open(4,File=readname,Access="stream",Form = "unformatted" )
+        write(4) bxyz0_tmp(1:dimx,1:dimy,1:dimz,1:3)
+        close(4)
+        write(*,'(A)')'| Data sucessfully loaded !'
+        bxyz0(1:dimx,1:dimy,1:dimz,1:3)=real(bxyz0_tmp(1:dimx,1:dimy,1:dimz,1:3),PP)
+        deallocate(bxyz0_tmp)
+      else   
+        write(*,'(A)')'| Loading B0 ...'
+        open(4,File=readname,Access="stream",Form = "unformatted" )
+        write(4) bxyz0(1:dimx,1:dimy,1:dimz,1:3)
+        close(4)
+        write(*,'(A)')'| Data sucessfully loaded !'
+      endif
     else
       write(*,'(A)')'| File '//trim(readname)//' does not exist'
       stop
@@ -212,14 +226,28 @@ contains
 
   subroutine read_b_restart
     logical          :: alive
+    real(SP),dimension(:,:,:,:),allocatable :: bxyz0_tmp
+    if (trim(precision_flag).eq.'float')then
+      allocate(bxyz0_tmp(1:dimx,1:dimy,1:dimz,1:3))
+    endif
     if(restart) then
       inquire(file=RestartName,exist=alive)
       if(alive) then 
-        write(*,'(A)')'| Loading restart B0...'//trim(RestartName)
-        open(3,File=trim(RestartName),Access="stream",Form = "unformatted" )
-        read(3) bxyz0(1:dimx,1:dimy,1:dimz,1:3)
-        close(3)
-        write(*,'(A)')'| Data sucessfully loaded !'
+        if (trim(precision_flag).eq.'float')then
+          write(*,'(A)')'| Loading restart B0...'//trim(RestartName)
+          open(3,File=trim(RestartName),Access="stream",Form = "unformatted" )
+          read(3) bxyz0_tmp(1:dimx,1:dimy,1:dimz,1:3)
+          close(3)
+          write(*,'(A)')'| Data sucessfully loaded !'
+          bxyz0(1:dimx,1:dimy,1:dimz,1:3)=real(bxyz0_tmp(1:dimx,1:dimy,1:dimz,1:3),PP)
+          deallocate(bxyz0_tmp)
+        else
+          write(*,'(A)')'| Loading restart B0...'//trim(RestartName)
+          open(3,File=trim(RestartName),Access="stream",Form = "unformatted" )
+          read(3) bxyz0(1:dimx,1:dimy,1:dimz,1:3)
+          close(3)
+          write(*,'(A)')'| Data sucessfully loaded !'
+        endif
       else
         write(*,'(A)')'| File '//trim(RestartName)//' does not exist'
         stop
@@ -229,15 +257,31 @@ contains
 
   subroutine read_bcs()
     logical          :: alive
+    real(SP),dimension(:,:),allocatable :: alpha0_tmp,bz0_tmp,sig0_tmp
+    if (trim(precision_flag).eq.'float')then
+      allocate(alpha0_tmp(1:dimx,1:dimy))
+      allocate(bz0_tmp(dimx,dimy))
+      allocate(sig0_tmp(1:dimx,1:dimy))
+    endif
 
     inquire(file=AlphaName,exist=alive)
     if(alive) then
       alpha0=alpha0*real(0,PP)
-      write(*,'(A)')'| Loading Alpha field data...'//trim(AlphaName)
-      open(3,File=AlphaName,Access="stream",Form = "unformatted" )
-      read(3) alpha0(1:dimx,1:dimy)
-      close(3)
-      write(*,'(A)')'| Data sucessfully loaded !'
+      if (trim(precision_flag).eq.'float')then
+        write(*,'(A)')'| Loading Alpha field data...  '//trim(AlphaName)
+        open(3,File=AlphaName,Access="stream",Form = "unformatted" )
+        read(3) alpha0_tmp(1:dimx,1:dimy)
+        close(3)
+        write(*,'(A)')'| Data sucessfully loaded !'
+        alpha0(1:dimx,1:dimy)=real(alpha0_tmp(1:dimx,1:dimy),PP)
+        deallocate(alpha0_tmp)
+      else
+        write(*,'(A)')'| Loading Alpha field data...  '//trim(AlphaName)
+        open(3,File=AlphaName,Access="stream",Form = "unformatted" )
+        read(3) alpha0(1:dimx,1:dimy)
+        close(3)
+        write(*,'(A)')'| Data sucessfully loaded !'
+      endif
     else
       write(*,'(A)')'| File '//AlphaName//' does not exist'
       stop
@@ -245,11 +289,21 @@ contains
 
     inquire(file=Bz0Name,exist=alive)
     if(alive) then
-      write(*,'(A)')'| Loading Bz bottom field data...'//trim(Bz0Name)
-      open(3,File=Bz0Name,Access="stream",Form = "unformatted" )
-      read(3) bz0
-      close(3)
-      write(*,'(A)')'| Data sucessfully loaded !'
+      if (trim(precision_flag).eq.'float')then
+        write(*,'(A)')'| Loading Bz bottom field data...  '//trim(Bz0Name)
+        open(3,File=Bz0Name,Access="stream",Form = "unformatted" )
+        read(3) bz0_tmp
+        close(3)
+        write(*,'(A)')'| Data sucessfully loaded !'
+        bz0=real(bz0_tmp,PP)
+        deallocate(bz0_tmp)
+      else
+        write(*,'(A)')'| Loading Bz bottom field data...  '//trim(Bz0Name)
+        open(3,File=Bz0Name,Access="stream",Form = "unformatted" )
+        read(3) bz0
+        close(3)
+        write(*,'(A)')'| Data sucessfully loaded !'
+      endif
     else
       write(*,'(A)')'| File '//Bz0Name//' does not exist'
       stop
@@ -260,11 +314,21 @@ contains
       inquire(file=AlphaErrName,exist=alive)
       if(alive) then
         sig0=sig0*real(0,PP)
-        write(*,'(A)')'| Loading Alpha field data...'//trim(AlphaErrName)
-        open(3,File=AlphaErrName,Access="stream",Form = "unformatted" )
-        read(3) sig0(1:dimx,1:dimy)
-        close(3)
-        write(*,'(A)')'| Data sucessfully loaded !'
+        if (trim(precision_flag).eq.'float')then
+          write(*,'(A)')'| Loading Alpha field data...  '//trim(AlphaErrName)
+          open(3,File=AlphaErrName,Access="stream",Form = "unformatted" )
+          read(3) sig0(1:dimx,1:dimy)
+          close(3)
+          write(*,'(A)')'| Data sucessfully loaded !'
+          sig0(1:dimx,1:dimy)=real(sig0_tmp(1:dimx,1:dimy),PP)
+          deallocate(sig0_tmp)
+        else
+          write(*,'(A)')'| Loading Alpha field data...  '//trim(AlphaErrName)
+          open(3,File=AlphaErrName,Access="stream",Form = "unformatted" )
+          read(3) sig0(1:dimx,1:dimy)
+          close(3)
+          write(*,'(A)')'| Data sucessfully loaded !'
+        endif
         max_sig0=maxval(sig00)
 
         if (alpha_error) then
@@ -308,7 +372,11 @@ contains
     write(*,'(A)')'| Writing the result ...'
     open(4,File=savename,Access="stream",STATUS="REPLACE",&
     &Form = "unformatted" )
-    write(4) axyz(1:dimx,1:dimy,1:dimz,:)
+    if (trim(precision_flag).eq.'float')then
+      write(4) real(axyz(1:dimx,1:dimy,1:dimz,:),SP)
+    else
+      write(4) axyz(1:dimx,1:dimy,1:dimz,:)
+    endif
     close(4)
   end subroutine write_a
 
@@ -320,7 +388,11 @@ contains
     write(*,'(A)')'| saving the B ...'
     open(4,File=savename,Access="stream",STATUS="REPLACE",&
     &Form = "unformatted" )
-    write(4) bxyz(1:dimx,1:dimy,1:dimz,1:3)
+    if (trim(precision_flag).eq.'float')then
+      write(4) real(bxyz(1:dimx,1:dimy,1:dimz,1:3),SP)
+    else
+      write(4) bxyz(1:dimx,1:dimy,1:dimz,1:3)
+    endif    
     close(4)
   end subroutine write_b
 
@@ -332,7 +404,11 @@ contains
     write(*,'(A)')'| saving the Bc ...'
     open(4,File=savename,Access="stream",STATUS="REPLACE",&
     &Form = "unformatted" )
-    write(4) bxyzj
+    if (trim(precision_flag).eq.'float')then
+      write(4) real(bxyzj,SP)
+    else
+      write(4) bxyzj
+    endif
     close(4)
   end subroutine write_bxyzj
 
@@ -344,7 +420,11 @@ contains
     write(*,'(A)')'| saving the alpha ...'
     open(4,File=savename,Access="stream",STATUS="REPLACE",&
     &Form = "unformatted" )
-    write(4) alpha
+    if (trim(precision_flag).eq.'float')then
+      write(4) real(alpha,SP)
+    else
+      write(4) alpha
+    endif
     close(4)
   end subroutine write_alpha
 
@@ -356,7 +436,11 @@ contains
     write(*,'(A)')'| saving the bottom alpha ...'
     open(4,File=savename,Access="stream",STATUS="REPLACE",&
     &Form = "unformatted" )
-    write(4) alpha0
+    if (trim(precision_flag).eq.'float')then
+      write(4) real(alpha0,SP)
+    else
+      write(4) alpha0
+    endif
     close(4)
   end subroutine write_alpha0
 
@@ -368,7 +452,11 @@ contains
     write(*,'(A)')'| saving the left box ...'
     open(4,File=savename,Access="stream",STATUS="REPLACE",&
     &Form = "unformatted" )
-    write(4) left_box
+    if (trim(precision_flag).eq.'float')then
+      write(4) real(left_box,SP)
+    else
+      write(4) left_box
+    endif
     close(4)
   end subroutine write_leftbox
 
@@ -380,7 +468,11 @@ contains
     write(*,'(A)')'| saving the Jxyz ...'
     open(4,File=savename,Access="stream",STATUS="REPLACE",&
     &Form = "unformatted" )
-    write(4) jxyz
+    if (trim(precision_flag).eq.'float')then
+      write(4) real(jxyz,SP)
+    else
+      write(4) jxyz
+    endif
     close(4)
   end subroutine write_jxyz
 

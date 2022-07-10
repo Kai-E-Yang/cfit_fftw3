@@ -9,9 +9,10 @@ contains
 
   subroutine fftw_forward_run(M,N,arrayin,arrayout)
     integer, intent(in)::M,N
-    real(DP),intent(in):: arrayin(M,N)
-    complex(DP),intent(out):: arrayout(M/2 + 1, N)
+    real(PP),intent(in):: arrayin(M,N)
+    complex(PP),intent(out):: arrayout(M/2 + 1, N)
     integer :: plan(8)
+
     call dfftw_plan_dft_r2c_2d(plan,M,N,arrayin,arrayout,FFTW_ESTIMATE)
     call dfftw_execute_dft_r2c(plan,arrayin,arrayout)
     call dfftw_destroy_plan(plan)
@@ -19,8 +20,8 @@ contains
 
   subroutine fftw_backward_run(M,N,arrayin,arrayout)
     integer, intent(in)::M,N
-    complex(DP),intent(in):: arrayin(M/2+1,N)
-    real(DP),intent(out):: arrayout(M, N)
+    complex(PP),intent(in):: arrayin(M/2+1,N)
+    real(PP),intent(out):: arrayout(M, N)
     integer :: plan(8)
     call dfftw_plan_dft_c2r_2d(plan,M,N,arrayin,arrayout,FFTW_ESTIMATE)
     call dfftw_execute_dft_c2r(plan,arrayin,arrayout)

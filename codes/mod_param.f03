@@ -9,12 +9,14 @@ implicit none
   integer, parameter :: PP= DP
   integer, parameter :: neqn = 3
 
+
   character(len=144) :: par
   character(len=144) :: indataformat
   character(len=144) :: OutFileName, AlphaName
   character(len=144) :: AlphaErrName  
   character(len=144) :: Bz0Name,RestartName
   character(len=144) :: method,stepmethod
+  character(len=144) :: precision_flag
 
   integer :: dimx,dimy,dimz,kmax
   integer :: NumThreads
@@ -68,6 +70,6 @@ implicit none
   namelist /cal_par/ NumThreads,dimx,dimy,dimz,delta_s,method,&
   stepmethod,ncycle,check,restart,savNum,factor,top_closed,&
   SPK_flag,SPK,Periodic,Aout,Polarity,nloop,startcyc,startloop,&
-  alpha_error,min_step,np_lenght_weight
+  alpha_error,min_step,np_lenght_weight,precision_flag
 
 end module mod_param

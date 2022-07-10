@@ -3,7 +3,6 @@ Flag = -fopenmp -ffree-form -ffree-line-length-none -O3 -Wall -std=f2003 -fcheck
 files = mod_fftw.f03 mod_param.f03 mod_operator.f03 mod_io.f03 mod_solver.f03 main.f03
 
 FFTW3_DIR=/opt/fftw3
-
 # FFTW3_DIR=/usr/physics/fftw/fftw-3.3.3
 
 # fftwC = -L${FFTW3_DIR}/lib -lfftw3 -lfftw3_omp -lm 
