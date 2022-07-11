@@ -197,13 +197,11 @@ contains
     logical          :: alive
     character(len=144):: readname
     real(SP),dimension(:,:,:,:),allocatable :: bxyz0_tmp
-    if (trim(precision_flag).eq.'float')then
-      allocate(bxyz0_tmp(1:dimx,1:dimy,1:dimz,1:3))
-    endif
     write(readname,'(A,i4.4,A,i4.4,''.dat'')') trim(OutFileName)//"B_",0,'_',0
     inquire(file=readname,exist=alive)
     if (alive) then
       if (trim(precision_flag).eq.'float')then
+        allocate(bxyz0_tmp(1:dimx,1:dimy,1:dimz,1:3))
         write(*,'(A)')'| Loading B0 ...'
         open(4,File=readname,Access="stream",Form = "unformatted" )
         write(4) bxyz0_tmp(1:dimx,1:dimy,1:dimz,1:3)
@@ -227,13 +225,11 @@ contains
   subroutine read_b_restart
     logical          :: alive
     real(SP),dimension(:,:,:,:),allocatable :: bxyz0_tmp
-    if (trim(precision_flag).eq.'float')then
-      allocate(bxyz0_tmp(1:dimx,1:dimy,1:dimz,1:3))
-    endif
     if(restart) then
       inquire(file=RestartName,exist=alive)
       if(alive) then 
         if (trim(precision_flag).eq.'float')then
+          allocate(bxyz0_tmp(1:dimx,1:dimy,1:dimz,1:3))
           write(*,'(A)')'| Loading restart B0...'//trim(RestartName)
           open(3,File=trim(RestartName),Access="stream",Form = "unformatted" )
           read(3) bxyz0_tmp(1:dimx,1:dimy,1:dimz,1:3)
@@ -258,16 +254,12 @@ contains
   subroutine read_bcs()
     logical          :: alive
     real(SP),dimension(:,:),allocatable :: alpha0_tmp,bz0_tmp,sig0_tmp
-    if (trim(precision_flag).eq.'float')then
-      allocate(alpha0_tmp(1:dimx,1:dimy))
-      allocate(bz0_tmp(dimx,dimy))
-      allocate(sig0_tmp(1:dimx,1:dimy))
-    endif
 
     inquire(file=AlphaName,exist=alive)
     if(alive) then
       alpha0=alpha0*real(0,PP)
       if (trim(precision_flag).eq.'float')then
+        allocate(alpha0_tmp(1:dimx,1:dimy))
         write(*,'(A)')'| Loading Alpha field data...  '//trim(AlphaName)
         open(3,File=AlphaName,Access="stream",Form = "unformatted" )
         read(3) alpha0_tmp(1:dimx,1:dimy)
@@ -290,6 +282,7 @@ contains
     inquire(file=Bz0Name,exist=alive)
     if(alive) then
       if (trim(precision_flag).eq.'float')then
+        allocate(bz0_tmp(dimx,dimy))
         write(*,'(A)')'| Loading Bz bottom field data...  '//trim(Bz0Name)
         open(3,File=Bz0Name,Access="stream",Form = "unformatted" )
         read(3) bz0_tmp
@@ -315,6 +308,7 @@ contains
       if(alive) then
         sig0=sig0*real(0,PP)
         if (trim(precision_flag).eq.'float')then
+          allocate(sig0_tmp(1:dimx,1:dimy))
           write(*,'(A)')'| Loading Alpha field data...  '//trim(AlphaErrName)
           open(3,File=AlphaErrName,Access="stream",Form = "unformatted" )
           read(3) sig0(1:dimx,1:dimy)
