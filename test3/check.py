@@ -25,7 +25,7 @@ by = np.divide(by,np.abs(bz).max())
 bz = np.divide(bz,np.abs(bz).max())
 
 f    = open('./correct_results/B_0002_0032.dat','rb')
-data = np.fromfile(f, dtype=np.float, count=dim*dim*dim*3)
+data = np.fromfile(f, dtype=np.float32, count=dim*dim*dim*3)
 xdim=dim
 ydim=dim
 zdim=dim
