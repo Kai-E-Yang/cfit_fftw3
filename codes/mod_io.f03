@@ -382,9 +382,6 @@ contains
     write(*,'(A)')'| saving the B ...'
     open(4,File=savename,Access="stream",STATUS="REPLACE",&
     &Form = "unformatted" )
-print*,'---------------------------- ------- max min',&
-maxval(real(bxyz(1:dimx,1:dimy,1:dimz,1:3),SP)),&
-minval(real(bxyz(1:dimx,1:dimy,1:dimz,1:3),SP))
 
     if (trim(precision_flag).eq.'float')then
       write(4) real(bxyz(1:dimx,1:dimy,1:dimz,1:3),SP)
