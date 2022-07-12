@@ -8,12 +8,13 @@
 	dimy=64
 	dimz=64
 	ncycle=2
-	nloop=100
-	savNum=50
+	nloop=32
+	savNum=1
 	top_closed=.true.
 	NumThreads=16
 	delta_s=0.5
 	Periodic=.true.
 	stepmethod='rk2'
 	precision_flag='float'
+	Polarity=-1
 /

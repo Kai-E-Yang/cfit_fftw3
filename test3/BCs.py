@@ -25,7 +25,7 @@ def yderiv2(arr,dy=None):
 dim=64
 x = np.divide(np.linspace(0, dim-1, dim),dim)
 y = np.divide(np.linspace(0, dim-1, dim),dim)
-xv, yv = np.meshgrid(x, y)
+yv, xv = np.meshgrid(x, y)
 
 kk = 2*np.pi
 lambda0 = 1.0
@@ -46,9 +46,9 @@ bx = np.divide(bx,np.abs(bz).max())
 by = np.divide(by,np.abs(bz).max())
 bz = np.divide(bz,np.abs(bz).max())
 
-bz.astype('float32').tofile('./data/bz0.dat')
-alpha.astype('float32').tofile('./data/alpha0.dat')
-sig.astype('float32').tofile('./data/sig0.dat')
+np.transpose(bz).astype('float32').tofile('./data/bz0.dat')
+np.transpose(alpha).astype('float32').tofile('./data/alpha0.dat')
+np.transpose(sig).astype('float32').tofile('./data/sig0.dat')
 
 
 

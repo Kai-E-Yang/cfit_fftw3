@@ -1,17 +1,17 @@
 &filename_par
-	OutFileName='./data/'
-	Bz0Name='./data/bz0.dat'
-	AlphaName='./data/alpha0.dat'
+	OutFileName='./data1/'
+	Bz0Name='./data1/bz0.dat'
+	AlphaName='./data1/alpha0.dat'
 /
 &cal_par
 	dimx=64
 	dimy=64
 	dimz=64
 	ncycle=2
-	nloop=100
-	savNum=50
+	nloop=32
+	savNum=32
 	top_closed=.true.
-	NumThreads=16
+	NumThreads=8
 	delta_s=0.5
 	Periodic=.true.
 	stepmethod='rk2'

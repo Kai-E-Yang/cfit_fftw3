@@ -204,15 +204,15 @@ contains
         allocate(bxyz0_tmp(1:dimx,1:dimy,1:dimz,1:3))
         write(*,'(A)')'| Loading B0 ...'
         open(4,File=readname,Access="stream",Form = "unformatted" )
-        write(4) bxyz0_tmp(1:dimx,1:dimy,1:dimz,1:3)
+        read(4) bxyz0_tmp(1:dimx,1:dimy,1:dimz,1:3)
         close(4)
         write(*,'(A)')'| Data sucessfully loaded !'
-        bxyz0(1:dimx,1:dimy,1:dimz,1:3)=real(bxyz0_tmp(1:dimx,1:dimy,1:dimz,1:3),PP)
+        bxyz0(1:dimx,1:dimy,1:dimz,1:3)=DBLE(bxyz0_tmp(1:dimx,1:dimy,1:dimz,1:3))
         deallocate(bxyz0_tmp)
       else   
         write(*,'(A)')'| Loading B0 ...'
         open(4,File=readname,Access="stream",Form = "unformatted" )
-        write(4) bxyz0(1:dimx,1:dimy,1:dimz,1:3)
+        read(4) bxyz0(1:dimx,1:dimy,1:dimz,1:3)
         close(4)
         write(*,'(A)')'| Data sucessfully loaded !'
       endif
@@ -311,7 +311,7 @@ contains
           allocate(sig0_tmp(1:dimx,1:dimy))
           write(*,'(A)')'| Loading Alpha field data...  '//trim(AlphaErrName)
           open(3,File=AlphaErrName,Access="stream",Form = "unformatted" )
-          read(3) sig0(1:dimx,1:dimy)
+          read(3) sig0_tmp(1:dimx,1:dimy)
           close(3)
           write(*,'(A)')'| Data sucessfully loaded !'
           sig0(1:dimx,1:dimy)=real(sig0_tmp(1:dimx,1:dimy),PP)
@@ -382,6 +382,10 @@ contains
     write(*,'(A)')'| saving the B ...'
     open(4,File=savename,Access="stream",STATUS="REPLACE",&
     &Form = "unformatted" )
+print*,'---------------------------- ------- max min',&
+maxval(real(bxyz(1:dimx,1:dimy,1:dimz,1:3),SP)),&
+minval(real(bxyz(1:dimx,1:dimy,1:dimz,1:3),SP))
+
     if (trim(precision_flag).eq.'float')then
       write(4) real(bxyz(1:dimx,1:dimy,1:dimz,1:3),SP)
     else

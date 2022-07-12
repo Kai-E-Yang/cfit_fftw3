@@ -459,7 +459,6 @@ contains
     i=floor(xindex)
     j=floor(yindex)
     k=floor(zindex)
-
     ! calculate the alpha component
     MaskCom(1) = alpha0(i,j)
     MaskCom(2) = alpha0(i+1,j)
