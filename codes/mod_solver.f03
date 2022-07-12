@@ -69,7 +69,9 @@ contains
         if (ncycle.eq.1) then
           write(*,'(A,i5.5,g10.4,A)')'|  Cycle: ',IterCYC,100.0*IterCYC/ncycle,'%'
         endif
-        if (ncycle.gt.1) Polarity=Polarity*(-1)**(IterCYC+1)
+        ! if (ncycle.gt.1) Polarity=Polarity*(-1)**(IterCYC+1)
+        if (IterCYC.gt.1) Polarity=Polarity*(-1)
+
         if(mod(IterCYC+1,2).eq.0)then
           call read_bcs
         endif

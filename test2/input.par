@@ -1,0 +1,18 @@
+&filename_par
+	OutFileName='./data/'
+	Bz0Name='./data/bz0.dat'
+	AlphaName='./data/alpha0.dat'
+/
+&cal_par
+	dimx=64
+	dimy=64
+	dimz=64
+	ncycle=4
+	nloop=32
+	savNum=32
+	top_closed=.false.
+	NumThreads=8
+	delta_s=0.5
+	Periodic=.true.
+	stepmethod='rk2'
+/

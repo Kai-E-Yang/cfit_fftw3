@@ -16,7 +16,8 @@ close,1
 
 l1=-0.525
 l2=0.525
-dd=0.008
+
+dd=0.015
 n=1
 ; --------------------------------------------------------------------
 ;The eq is solved by fix P' not coefficent \alpha, 
@@ -31,7 +32,7 @@ x0=fltarr(dn,dn,dn)
 y0=fltarr(dn,dn,dn)
 z0=fltarr(dn,dn,dn)
 
-for i=0,dn-1 do x0[i,*,*]=l1+i*dd
+for i=0,dn-1 do x0[i,*,*]=i*dd
 for i=0,dn-1 do y0[*,i,*]=l1+i*dd
 for i=0,dn-1 do z0[*,*,i]=l1+i*dd
 
@@ -75,19 +76,25 @@ alpha=siz[1]*(jx*bx+jy*by+jz*bz)/(bx^2+by^2+bz^2)
 ; bz0=reform(bz[1:128,40,1:128])
 ; alpha0=reform(alpha[1:128,40,1:128])
 
-bx0=reform(bx[40,1:128,1:128])
-by0=reform(by[40,1:128,1:128])
-bz0=reform(bz[40,1:128,1:128])
-alpha0=reform(alpha[40,1:128,1:128])
+;bx0=reform(bx[40,1:128,1:128])
+;by0=reform(by[40,1:128,1:128])
+;bz0=reform(bz[40,1:128,1:128])
+;alpha0=reform(alpha[40,1:128,1:128])
 
 
-bx1=rebin(bx0,64,64)
-by1=rebin(by0,64,64)
-bz1=rebin(bz0,64,64)
-alpha1=rebin(alpha0,64,64)
+;bx1=rebin(bx0,64,64)
+;by1=rebin(by0,64,64)
+;bz1=rebin(bz0,64,64)
+;alpha1=rebin(alpha0,64,64)
+
+
+bx1=bx[20,1:64,1:64]/max(abs(bx[20,1:64,1:64]))
+by1=by[20,1:64,1:64]/max(abs(bx[20,1:64,1:64]))
+bz1=bz[20,1:64,1:64]/max(abs(bx[20,1:64,1:64]))
+alpha1=alpha[20,1:64,1:64]
 
 OPENW, 1, './data/bz0.dat'
-WRITEU, 1, double(by1)
+WRITEU, 1, double(bx1)
 close,1
 
 OPENW, 1, './data/alpha0.dat'
@@ -95,7 +102,21 @@ WRITEU, 1,double(alpha1)
 close,1
 
 OPENW, 1, './data/sig0.dat'
-WRITEU, 1, double(by1)
+WRITEU, 1, double(abs(bx1))
+close,1
+
+
+
+OPENW, 1, './bz_ll.dat'
+WRITEU, 1, double(bx[20:69,1:64,1:64]/max(abs(bx[20,1:64,1:64])))
+close,1
+
+OPENW, 1, './bx_ll.dat'
+WRITEU, 1,double(by[20:69,1:64,1:64]/max(abs(bx[20,1:64,1:64])))
+close,1
+
+OPENW, 1, './by_ll.dat'
+WRITEU, 1, double(bz[20:69,1:64,1:64]/max(abs(bx[20,1:64,1:64])))
 close,1
 
 
