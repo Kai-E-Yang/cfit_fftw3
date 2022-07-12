@@ -65,6 +65,7 @@ Calculating the non-linear force foree field with current iteration based on the
 -- change the log field into CSV format.
 - Version 27: 2022 Jul 09, changed by Kai E. Yang.
 -- add precision_flag to control the IO precision, default value is 'double', you can change to 'float'
+-- fftw3 3.3.3 and 3.3.10 have tested.
 
 ## How to use it
 1, set the directory of the FFTW3 lib, e.g.,
