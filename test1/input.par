@@ -1,7 +1,7 @@
 &filename_par
-	OutFileName='./data1/'
-	Bz0Name='./data1/bz0.dat'
-	AlphaName='./data1/alpha0.dat'
+	OutFileName='./data/'
+	Bz0Name='./data/bz0.dat'
+	AlphaName='./data/alpha0.dat'
 /
 &cal_par
 	dimx=64
