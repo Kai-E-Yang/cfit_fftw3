@@ -181,6 +181,10 @@ The keywords are classified as two groups, the group FILENAME_PAR contains all t
 - MIN_STEP, minimum step size of the field line tracing in the unit of pixel.
 - precision_flag, the precision of IO, default is 'double', 'float' is optional.
 
+## Suggestion
+- use open top BC, TOP_CLOSED=.false.
+- non periodic field line tracing, PERIODIC=.false.
+
 ## Other Note:
 This parallel version is based on FORTRAN OPENMP.
 
