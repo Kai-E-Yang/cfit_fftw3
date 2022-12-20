@@ -183,7 +183,7 @@ The keywords are classified as two groups, the group FILENAME_PAR contains all t
 
 ## Suggestion
 - use open top BC, TOP_CLOSED=.false.
-- non periodic field line tracing, PERIODIC=.false.
+- non periodic field line tracing, PERIODIC=.false., which assign alpha values on closed field lines only.
 
 ## Other Note:
 This parallel version is based on FORTRAN OPENMP.
