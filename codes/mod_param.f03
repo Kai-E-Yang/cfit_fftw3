@@ -52,7 +52,7 @@ implicit none
   complex(PP), dimension(:,:,:,:), allocatable :: fap
 
 
-  real(PP) :: PI=4*ATAN(real(1,PP))
+  real(PP) :: PI=4*ATAN(real(1,PP))  
   real(PP) :: TWOPI=8*ATAN(real(1,PP))
   real(PP) :: delta_s
   real(PP) :: E0,dx,dy,dz

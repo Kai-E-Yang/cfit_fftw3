@@ -40,6 +40,7 @@ contains
     complex(PP), dimension(:,:), allocatable :: fbzL
     integer,dimension(8)::plan_ax,plan_ay,plan_az
     integer,dimension(8)::plan_bx,plan_by,plan_bz
+    real(PP)::dkx,dky
     ! Calculate potential field for given bz0, via Fourier solution 
     ! (e.g. Gary 1989, ApJ Supp. 69, 323). 
     ! Allocate memory
@@ -72,7 +73,6 @@ contains
     bz0mean=sum(bz0)/size(bz0)
     bzL(:,:)=bz0mean
     bz0t=bz0-bzL
-
     if (top_closed) then
       bz0n=bz0t 
     else
@@ -83,22 +83,29 @@ contains
     ! Top of the box
     L=zarr(dimz)
     ! Define wave number arrays for Fourier components in the arrays
+
 ! ------------------------- may 3 add, start ----------------------
-    forall(i=1:dimx/2+1,j=1:dimy) kxarr(i,j)=real(i-1,PP)
-    forall(i=1:dimx/2+1,j=1:dimy/2) kyarr(i,j)=real(j-1,PP)
-    forall(i=1:dimx/2+1,j=dimy/2+1:dimy) kyarr(i,j)=real(j-dimy-1,PP)
-    kxarr=kxarr/(-2*PI)
-    kyarr=kyarr/(-2*PI)
+    dkx=real(1,PP)/(dimx*dx)
+    dky=real(1,PP)/(dimy*dy)
+
+    forall(i=1:dimx/2+1,j=1:dimy) kxarr(i,j)=real(i-1,PP)*dkx
+    forall(i=1:dimx/2+1,j=1:dimy/2) kyarr(i,j)=real(j-1,PP)*dky
+    forall(i=1:dimx/2+1,j=dimy/2+1:dimy) kyarr(i,j)=real(j-dimy/2-1,PP)*dky-real(0.5*dimy,PP)*dky
+
+    kxarr=-kxarr
+    kyarr=-kyarr
 ! ------------------------- may 3 add, end ----------------------
+
+    zf=0.0
     qarr=dsqrt(kxarr**2+kyarr**2)
-    kappa=2.0d0*PI*qarr
+    kappa=qarr
     where (qarr.eq.0)
           invkappa=0.0d0
           farr=0.0d0
           farrz=(1.d0-zf/L)
     elsewhere
          invkappa=1.d0/kappa
-         farr=1.d0/(1.d0-dexp(-2.0d0*kappa*L))
+         farr=1.d0/(1.d0-dexp(-2.0d0*TWOPI*kappa*L))
          farrz=0.0d0
     end where
     ! Loop over layers in z, divided up among processes.
@@ -109,34 +116,36 @@ contains
       ! FT of field
       if (top_closed) then
         ! Form which avoids overflow for large q values...
-        fbik(:,:,k,1)=2*PI*cmplx(0,1)*kxarr*fbz0*invkappa*farr&
-        *( exp(kappa*(zv-2*L))+exp(-kappa*zv) )
-        fbik(:,:,k,2)=2*PI*cmplx(0,1)*kyarr*fbz0*invkappa*farr&
-        *( exp(kappa*(zv-2*L))+exp(-kappa*zv) )
+        fbik(:,:,k,1)=cmplx(0,1)*kxarr*fbz0*invkappa*farr&
+        *( exp(TWOPI*kappa*(zv-2*L))+exp(-TWOPI*kappa*zv) )
+        fbik(:,:,k,2)=cmplx(0,1)*kyarr*fbz0*invkappa*farr&
+        *( exp(TWOPI*kappa*(zv-2*L))+exp(-TWOPI*kappa*zv) )
         fbik(:,:,k,3)=fbz0*farr&
-        *( -exp(kappa*(zv-2*L))+exp(-kappa*zv) ) &
+        *( -exp(TWOPI*kappa*(zv-2*L))+exp(-TWOPI*kappa*zv) ) &
         +farrz*fbz0
         if(Aout) then
-          fap(:,:,k,1)=2*PI*cmplx(0,1)*kyarr*invkappa**2*farr*fbz0&
-          *(exp(kappa*(zv-2*L))-exp(-kappa*zv))
-          fap(:,:,k,2)=2*PI*cmplx(0,1)*kxarr*invkappa**2*farr*fbz0&
-          *(-exp(kappa*(zv-2*L))+exp(-kappa*zv))
+          fap(:,:,k,1)=(cmplx(0,1)/TWOPI)*kyarr*invkappa**2*farr*fbz0&
+          *(exp(TWOPI*kappa*(zv-2*L))-exp(-TWOPI*kappa*zv))
+          fap(:,:,k,2)=(cmplx(0,1)/TWOPI)*kxarr*invkappa**2*farr*fbz0&
+          *(-exp(TWOPI*kappa*(zv-2*L))+exp(-TWOPI*kappa*zv))
           fap(:,:,k,3)=0.0d0
         end if
       else
-        fbik(:,:,k,1)=2*PI*cmplx(0,1)*kxarr*fbz0*invkappa*exp(-kappa*zv)
-        fbik(:,:,k,2)=2*PI*cmplx(0,1)*kyarr*fbz0*invkappa*exp(-kappa*zv)
-        fbik(:,:,k,3)=fbz0*exp(-kappa*zv)
+        fbik(:,:,k,1)=cmplx(0,1)*kxarr*fbz0*invkappa*exp(-TWOPI*kappa*zv)
+        fbik(:,:,k,2)=cmplx(0,1)*kyarr*fbz0*invkappa*exp(-TWOPI*kappa*zv)
+        fbik(:,:,k,3)=fbz0*exp(-TWOPI*kappa*zv)
         if(Aout) then
-          fap(:,:,k,1)=-2*PI*cmplx(0,1)*kyarr*invkappa**2*fbz0*exp(-kappa*zv)
-          fap(:,:,k,2)=2*PI*cmplx(0,1)*kxarr*invkappa**2*fbz0*exp(-kappa*zv)
+          fap(:,:,k,1)=(-cmplx(0,1)/TWOPI)*kyarr*invkappa**2*fbz0*exp(-TWOPI*kappa*zv)
+          fap(:,:,k,2)=(cmplx(0,1)/TWOPI)*kxarr*invkappa**2*fbz0*exp(-TWOPI*kappa*zv)
           fap(:,:,k,3)=0.0d0
         end if
       end if
+
       ! Invert FTs
       call dfftw_execute_dft_c2r(plan_bx,fbik(:,:,k,1),bxyz0(:,:,k,1))
       call dfftw_execute_dft_c2r(plan_by,fbik(:,:,k,2),bxyz0(:,:,k,2))
       call dfftw_execute_dft_c2r(plan_bz,fbik(:,:,k,3),bxyz0(:,:,k,3))
+
       bxyz(1:dimx,1:dimy,k,1)=bxyz0(:,:,k,1)  
       bxyz(1:dimx,1:dimy,k,2)=bxyz0(:,:,k,2)  
       if (top_closed) then
@@ -177,6 +186,7 @@ contains
       call dfftw_destroy_plan(plan_ax)
       call dfftw_destroy_plan(plan_ay)
       call dfftw_destroy_plan(plan_az)
+      axyz=axyz*scale_factor
     end if
   end subroutine fftw3_laplace
 
@@ -188,13 +198,13 @@ contains
     complex(PP) :: Ifaz_fix
     complex(PP) :: fax,fay,faz,dfaxdz,dfaydz
     real(PP), dimension(:), allocatable :: kxarr, kyarr
+    real(PP) :: dkx,dky
     ! Shared parallel objects static
     complex(PP), dimension(dimz) :: arg 
     integer,dimension(8)::plan_fjx,plan_fjy,plan_fjz
     integer,dimension(8)::plan_fbx,plan_fby,plan_fbz
     integer,dimension(8)::plan_fax,plan_fay,plan_faz
 
-    ! print *,'Calculating Fourier solution to Poisson equation...'
     ! Fourier transform current. Note that layers above kmax have fjc(:,:,k,:)=0
     fjc=0.0d0
     fbc=0.0d0
@@ -203,11 +213,17 @@ contains
     ! Define arrays u, v with frequencies corresponding to Fourier
     allocate(kxarr(dimx/2+1),kyarr(dimy)) 
 
-    forall(i=1:dimx/2+1) kxarr(i)=real(i-1,PP)
-    forall(j=1:dimy/2) kyarr(j)=real(j-1,PP)
-    forall(j=dimy/2+1:dimy) kyarr(j)=real(j-dimy-1,PP)
-    kxarr=kxarr/(-2.0d0*PI)
-    kyarr=kyarr/(-2.0d0*PI)
+! ------------------------- dec 16 add, start ----------------------
+    dkx=real(1,PP)/(dimx*dx)
+    dky=real(1,PP)/(dimy*dy)
+
+    forall(i=1:dimx/2+1) kxarr(i)=real(i-1,PP)*dkx
+    forall(j=1:dimy/2) kyarr(j)=real(j-1,PP)*dky
+    forall(j=dimy/2+1:dimy) kyarr(j)=real(j-dimy/2-1,PP)*dky-real(0.5*dimy,PP)*dky
+
+    kxarr=-1*kxarr
+    kyarr=-1*kyarr
+! ------------------------- dec 16 add, end ----------------------
 
     call dfftw_plan_dft_c2r_2d(plan_fbx,dimx,dimy,fbc(:,:,1,1),bxyz(:,:,1,1),FFTW_ESTIMATE)
     call dfftw_plan_dft_c2r_2d(plan_fby,dimx,dimy,fbc(:,:,1,2),bxyz(:,:,1,2),FFTW_ESTIMATE)
@@ -227,7 +243,6 @@ contains
     call dfftw_destroy_plan(plan_fjx)
     call dfftw_destroy_plan(plan_fjy)
     call dfftw_destroy_plan(plan_fjz)
-    fjc=fjc/real(2*PI,PP)
     ! Apply solution at each grid point
     if(Aout)then
       fap=0.0d0
@@ -239,7 +254,7 @@ contains
 
     do i=1,dimx/2+1
       do j=1,dimy
-        kap=2*PI*sqrt(kxarr(i)**2+kyarr(j)**2)
+        kap=TWOPI*sqrt(kxarr(i)**2+kyarr(j)**2)
         if (kap.ne.0) then
            fac=1.0d0/(1.0d0-exp(-2.0d0*kap*L))
         else
@@ -347,9 +362,9 @@ contains
             faz=0.5d0*faz/kap
           endif
           ! Construct FTs of components of Bc
-          fbc(i,j,k,1)=-2*PI*cmplx(0,1)*kyarr(j)*faz-dfaydz
-          fbc(i,j,k,2)=dfaxdz+2*PI*cmplx(0,1)*kxarr(i)*faz
-          fbc(i,j,k,3)=2*PI*cmplx(0,1)*(-kxarr(i)*fay+kyarr(j)*fax)
+          fbc(i,j,k,1)=-TWOPI*cmplx(0,1)*kyarr(j)*faz-dfaydz
+          fbc(i,j,k,2)=dfaxdz+TWOPI*cmplx(0,1)*kxarr(i)*faz
+          fbc(i,j,k,3)=TWOPI*cmplx(0,1)*(-kxarr(i)*fay+kyarr(j)*fax)
           if(Aout) then
             fap(i,j,k,1)=fax
             fap(i,j,k,2)=fay
@@ -394,11 +409,13 @@ contains
     complex(PP), dimension(2) :: I1,I3,I5
     complex(PP) :: fax,fay,faz,dfaxdz,dfaydz
     real(PP), dimension(:), allocatable :: kxarr, kyarr
+    real(PP) :: dkx,dky
     ! Shared parallel objects static
     complex(PP), dimension(dimz) :: arg 
     integer,dimension(8)::plan_fjx,plan_fjy,plan_fjz
     integer,dimension(8)::plan_fbx,plan_fby,plan_fbz
     integer,dimension(8)::plan_fax,plan_fay,plan_faz
+    real(PP), dimension(:), allocatable :: zarr1
 
     ! print *,'Calculating Fourier solution to Poisson equation...'
     kmax=dimz
@@ -409,12 +426,20 @@ contains
     L=zarr(dimz)
     ! Define arrays u, v with frequencies corresponding to Fourier
     allocate(kxarr(dimx/2+1),kyarr(dimy)) 
+    allocate(zarr1(dimz))
+    zarr1=zarr
 
-    forall(i=1:dimx/2+1) kxarr(i)=real(i-1,PP)
-    forall(j=1:dimy/2) kyarr(j)=real(j-1,PP)
-    forall(j=dimy/2+1:dimy) kyarr(j)=real(j-dimy-1,PP)
-    kxarr=kxarr/(-2.0d0*PI)
-    kyarr=kyarr/(-2.0d0*PI)
+! ------------------------- dec 16 add, start ----------------------
+    dkx=real(1,PP)/(dimx*dx)
+    dky=real(1,PP)/(dimy*dy)
+
+    forall(i=1:dimx/2+1) kxarr(i)=real(i-1,PP)*dkx
+    forall(j=1:dimy/2) kyarr(j)=real(j-1,PP)*dky
+    forall(j=dimy/2+1:dimy) kyarr(j)=real(j-dimy/2-1,PP)*dky-real(0.5*dimy,PP)*dky
+
+    kxarr=-1*kxarr
+    kyarr=-1*kyarr
+! ------------------------- dec 16 add, end ----------------------
 
     call dfftw_plan_dft_c2r_2d(plan_fbx,dimx,dimy,fbc(:,:,1,1),bxyz(:,:,1,1),FFTW_ESTIMATE)
     call dfftw_plan_dft_c2r_2d(plan_fby,dimx,dimy,fbc(:,:,1,2),bxyz(:,:,1,2),FFTW_ESTIMATE)
@@ -434,7 +459,7 @@ contains
     call dfftw_destroy_plan(plan_fjx)
     call dfftw_destroy_plan(plan_fjy)
     call dfftw_destroy_plan(plan_fjz)
-    fjc=fjc/real(2*PI,PP)
+
     ! Apply solution at each grid point
     if(Aout)then
       fap=0.0d0
@@ -446,7 +471,7 @@ contains
 
     do i=1,dimx/2+1
       do j=1,dimy
-        kap=2*PI*sqrt(kxarr(i)**2+kyarr(j)**2)
+        kap=TWOPI*sqrt(kxarr(i)**2+kyarr(j)**2)
         if (kap.ne.0) then
            fac=1.0d0/(1.0d0-exp(-2.0d0*kap*L))
         else
@@ -456,7 +481,7 @@ contains
         !$omp parallel do &
         !$omp private(ii,arg)
         do ii=1,3
-          arg(1:dimz)=exp(-kap*(zarr(1:dimz)))*fjc(i,j,1:dimz,ii)
+          arg(1:dimz)=exp(-kap*(zarr1(1:dimz)))*fjc(i,j,1:dimz,ii)
           I00(ii)=dz*(0.5d0*(arg(1)+arg(dimz))+sum(arg(2:dimz-1)))
         enddo 
         !$omp end parallel do
@@ -464,7 +489,7 @@ contains
         !$omp private(k,ii,zv,emkapz,arg,I1,I2,I3,I4,I5) &
         !$omp private(fax,fay,faz,dfaxdz,dfaydz) 
         do k=1,dimz
-          zv=zarr(k)
+          zv=zarr1(k)
           emkapz=exp(-kap*zv)
           ! Integrals from 0 to z
           I1=0.0d0
@@ -472,7 +497,7 @@ contains
           if (k .ne. 1) then
             ! Integral I2
             do ii=1,3
-              arg(1:k)=exp(-kap*(zv-zarr(1:k)))*fjc(i,j,1:k,ii)
+              arg(1:k)=exp(-kap*(zv-zarr1(1:k)))*fjc(i,j,1:k,ii)
               I2(ii)=dz*(0.5d0*(arg(1)+arg(k))+sum(arg(2:k-1)))
             enddo
           endif 
@@ -482,7 +507,7 @@ contains
           if (k .ne. dimz) then
             ! Integral I4
             do ii=1,3
-              arg(k:dimz)=exp(-kap*(zarr(k:dimz)-zv))*fjc(i,j,k:dimz,ii)
+              arg(k:dimz)=exp(-kap*(zarr1(k:dimz)-zv))*fjc(i,j,k:dimz,ii)
               I4(ii)=dz*(0.5d0*(arg(k)+arg(dimz))+sum(arg(k+1:dimz-1))) 
             enddo
           endif 
@@ -506,7 +531,7 @@ contains
            ! ensures the Poisson equation is met when kappa=0
             dfaxdz=0.0d0
             dfaydz=0.0d0 
-            if (k /= dimz) then
+            if (k .ne. dimz) then
                arg(k:dimz)=fjc(i,j,k:dimz,1)
                dfaxdz=dz*(0.5*(arg(k)+arg(dimz))+sum(arg(k+1:dimz-1))) 
                arg(k:dimz)=fjc(i,j,k:dimz,2)
@@ -524,9 +549,9 @@ contains
             faz=0.5d0*faz/kap
           endif
           ! Construct FTs of components of Bc
-          fbc(i,j,k,1)=-2*PI*cmplx(0,1)*kyarr(j)*faz-dfaydz
-          fbc(i,j,k,2)=dfaxdz+2*PI*cmplx(0,1)*kxarr(i)*faz
-          fbc(i,j,k,3)=2*PI*cmplx(0,1)*(-kxarr(i)*fay+kyarr(j)*fax)
+          fbc(i,j,k,1)=-TWOPI*cmplx(0,1)*kyarr(j)*faz-dfaydz
+          fbc(i,j,k,2)=dfaxdz+TWOPI*cmplx(0,1)*kxarr(i)*faz
+          fbc(i,j,k,3)=TWOPI*cmplx(0,1)*(-kxarr(i)*fay+kyarr(j)*fax)
           if(Aout) then
             fap(i,j,k,1)=fax
             fap(i,j,k,2)=fay

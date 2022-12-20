@@ -60,7 +60,8 @@ contains
 
   subroutine grid    
     integer :: i,j,k
-    dx=real(2*PI,PP)/real(dimx,PP)
+    ! dx=real(2*PI,PP)/real(dimx-1,PP)
+    dx=real(1,PP)/real(dimx-1,PP)
     dy = dx
     dz = dx 
   
@@ -423,11 +424,11 @@ contains
     close(4)
   end subroutine write_alpha
 
-  subroutine write_alpha0(icyc,iloop)
-    integer :: icyc,iloop
+  subroutine write_alpha0(icyc)
+    integer :: icyc
     character(len=144) :: savename
 
-    write(savename,'(A,i4.4,A,i4.4,''.dat'')') trim(OutFileName)//"Alpha2d_",icyc,'_',iloop
+    write(savename,'(A,i4.4,''.dat'')') trim(OutFileName)//"Alpha2d_",icyc
     write(*,'(A)')'| saving the bottom alpha ...'
     open(4,File=savename,Access="stream",STATUS="REPLACE",&
     &Form = "unformatted" )
@@ -471,9 +472,9 @@ contains
     close(4)
   end subroutine write_jxyz
 
-  subroutine printlog(icyc,new_th,new_en)
+  subroutine printlog(icyc,new_th,new_en,new_div)
     integer :: icyc
-    real(PP) :: new_th,new_en
+    real(PP) :: new_th,new_en,new_div
     character(len=800) :: filename,filehead
     character(len=2048) :: line,datastr
 
@@ -481,18 +482,20 @@ contains
     if(.not.logopened) then
       ! generate filename
       logopened=.true.
-      filehead="iter,theta,energy"
+      filehead="iter,theta,energy,div"
       line=''
       write(datastr,'(i8,a)') icyc,','
       line=trim(line)//trim(datastr)
       write(datastr,'(es13.6,a)') new_th,','
       line=trim(line)//trim(datastr)
-      write(datastr,'(es13.6)') new_en
+      write(datastr,'(es13.6,a)') new_en,','
+      line=trim(line)//trim(datastr)
+      write(datastr,'(es13.6)') new_div
       line=trim(line)//trim(datastr)
 
       open(7,file=trim(filename),access='sequential',position='append',status="replace")
-      write(7,'(A17)') trim(filehead)
-      write(7,'(A37)') line
+      write(7,'(A21)') trim(filehead)
+      write(7,'(A51)') line
       close(7)
     else
       line=''
@@ -500,10 +503,12 @@ contains
       line=trim(line)//trim(datastr)
       write(datastr,'(es13.6,a)') new_th,','
       line=trim(line)//trim(datastr)
-      write(datastr,'(es13.6)') new_en
+      write(datastr,'(es13.6,a)') new_en,','
+      line=trim(line)//trim(datastr)
+      write(datastr,'(es13.6)') new_div
       line=trim(line)//trim(datastr)
       open(7,file=trim(filename),access='sequential',position='append',status="old")
-      write(7,'(A37)') line
+      write(7,'(A51)') line
       close(7)
     endif
   end subroutine printlog

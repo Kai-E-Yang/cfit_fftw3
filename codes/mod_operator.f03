@@ -79,8 +79,8 @@ contains
     n3p = nnn(3)+1
     
     if(Periodic) then
-      if(n1 .lt. 1) n1=1
-      if(n2 .lt. 1) n2=1
+      if(n1 .lt. 1) n1=dimx-n1
+      if(n2 .lt. 1) n2=dimy-n2
       if(n1p .gt. dimx) n1p=n1p-dimx
       if(n2p .gt. dimy) n2p=n2p-dimy
     else
@@ -686,6 +686,38 @@ subroutine ff_check(new_th)
     return
   endif
 end subroutine ff_check
+
+! add dec 04 2022, by checking the divergence
+subroutine div_check(new_div) 
+  real(PP),intent(out) :: new_div
+  ! real(PP) :: jb,jmag,bmag,sin_theta,ratio ! Add 26 Nov 2014
+  real(PP) :: sum_div ! The variables used for storing the sumation are double precesion
+  real(PP),dimension(3) :: div3d
+  integer :: i,j,k
+    
+  ! Initalise sums
+  new_div = 0.0d0
+  sum_div = 0.0d0
+  
+  ! Current-weighted average angle. This loop computes sum(|J|*sin(theta)),
+  ! and sum(|J|) over the volume. The summation is performed in parallel 
+  ! using the OpenMP reduction derective.
+  !$omp parallel do private(i,j,k,div3d) default(none) shared(dimx,dimy,dimz,bxyz) reduction(+:sum_div)
+  do i=1,dimx
+  do j=1,dimy
+  do k=1,dimz
+    ! Compute div3d = div(B) using centred differenes
+    div3d(1) = xderiv(bxyz(1:dimx,1:dimy,1:dimz,1),i,j,k)
+    div3d(2) = yderiv(bxyz(1:dimx,1:dimy,1:dimz,2),i,j,k)
+    div3d(3) = zderiv(bxyz(1:dimx,1:dimy,1:dimz,3),i,j,k)
+    sum_div=sum_div+abs(sum(div3d))/(6* sqrt(sum(bxyz(i,j,k,:)**2) ))
+  enddo
+  enddo
+  enddo  
+  !$omp end parallel do
+
+  new_div = sum_div/(dimx*dimy*dimz)*dz
+end subroutine div_check
 
   subroutine update_b  
     integer :: M

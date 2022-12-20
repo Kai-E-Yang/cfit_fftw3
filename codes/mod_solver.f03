@@ -9,8 +9,9 @@ contains
 ! ------------- master -----------
   subroutine master()
     integer :: ClockStart,ClockEnd,LoopClockStart,LoopClockEnd,ClockRate,ClockMax,Ticks
-    integer :: IterCYC,IterLoop
+    integer :: IterCYC
     real(PP):: Seconds,NewTheta,NewEnergy
+    real(PP):: NewDiv
 
     call system_clock(count_max=ClockMax,count_rate=ClockRate)
     call system_clock(ClockStart)
@@ -24,22 +25,27 @@ contains
       write(*,'(A,i4.4,A,i4.4)')'|         restart cycle: ',startcyc,', loop',startloop
       call read_b_restart
       bxyz(1:dimx,1:dimy,1:dimz,:)=bxyz0
+      call fftw3_laplace
       call fill_3d_vector(bxyz)
       call calc_energy(NewEnergy)
       call ff_check(NewTheta)
+      call div_check(NewDiv)
+
     else
       write(*,'(A)')'| Starting a new calculation'
       call fftw3_laplace
       call write_b(0,0)
       call calc_energy(NewEnergy)
       call ff_check(NewTheta)
+      call div_check(NewDiv)
+
       if(check) then
-        call write_bxyzj(startcyc,startloop)
-        call write_leftbox(startcyc,startloop)
-        call write_alpha(startcyc,startloop)
-        call write_jxyz(startcyc,startloop)
+        call write_bxyzj(0,0)
+        call write_leftbox(0,0)
+        call write_alpha(0,0)
+        call write_jxyz(0,0)
       endif
-      if(Aout) call write_a(startcyc,startloop)
+      if(Aout) call write_a(0,0)
     endif
 
     E0=NewEnergy
@@ -67,7 +73,7 @@ contains
         endif
         call system_clock(LoopClockStart)
         if (ncycle.eq.1) then
-          write(*,'(A,i5.5,g10.4,A)')'|  Cycle: ',IterCYC,100.0*IterCYC/ncycle,'%'
+          write(*,'(A,i5.5,g10.4,A)')'| Cycle: ',IterCYC,100.0*IterCYC/ncycle,'%'
         endif
         ! if (ncycle.gt.1) Polarity=Polarity*(-1)**(IterCYC+1)
         if (IterCYC.gt.1) Polarity=Polarity*(-1)
@@ -88,7 +94,7 @@ contains
         endif
         if( mod(IterCYC,2).eq.0)then
           call combine_alpha
-          call write_alpha0(IterCYC,IterLoop)
+          call write_alpha0(IterCYC)
         endif
       enddo
     endif
@@ -102,6 +108,7 @@ contains
     integer,intent(in)::IterCYC
     integer :: IterLoop
     real(PP):: NewTheta,NewEnergy
+    real(PP):: NewDiv
     integer :: IterNow
     real(PP):: OldTheta,OldEnergy,DeltaTheta,DeltaEnergy
 
@@ -137,8 +144,9 @@ contains
       endif
       IterNow=IterNow+1
       call ff_check(NewTheta)
+      call div_check(NewDiv)
       call calc_energy(NewEnergy)
-      call printlog(IterNow,NewTheta,NewEnergy/E0)
+      call printlog(IterNow,NewTheta,NewEnergy/E0,NewDiv)
       if(IterLoop.eq.1)then
         DeltaTheta=0.0d0
         DeltaEnergy=0.0d0
@@ -150,6 +158,7 @@ contains
       OldEnergy=NewEnergy
       write(*,'(A,g10.4)')'|                        Normalized Energy = ',NewEnergy/E0
       write(*,'(A,g10.4)')'|                        Average angle = ',NewTheta
+      write(*,'(A,g10.4)')'|                        Integral div = ',NewDiv
       write(*,'(A,g10.4)')'|                        delta theta = ',DeltaTheta
       write(*,'(A,g10.4)')'|                        delta E = ',DeltaEnergy
       write(*,'(A)')' '
@@ -159,7 +168,7 @@ contains
   subroutine do_negative_loop(IterCYC)
     integer,intent(in)::IterCYC
     integer :: IterLoop
-    real(PP):: NewTheta,NewEnergy
+    real(PP):: NewTheta,NewEnergy,NewDiv
     integer :: IterNow
     real(PP):: OldTheta,OldEnergy,DeltaTheta,DeltaEnergy
 
@@ -195,8 +204,9 @@ contains
       endif
       IterNow=IterNow+1
       call ff_check(NewTheta)
+      call div_check(NewDiv)
       call calc_energy(NewEnergy)
-      call printlog(IterNow,NewTheta,NewEnergy/E0)
+      call printlog(IterNow,NewTheta,NewEnergy/E0,NewDiv)
       if(IterLoop.eq.1)then
         DeltaTheta=0.0d0
         DeltaEnergy=0.0d0
@@ -208,6 +218,7 @@ contains
       OldEnergy=NewEnergy
       write(*,'(A,g10.4)')'|                        Normalized Energy = ',NewEnergy/E0
       write(*,'(A,g10.4)')'|                        Average angle = ',NewTheta
+      write(*,'(A,g10.4)')'|                        Integral div = ',NewDiv
       write(*,'(A,g10.4)')'|                        delta theta = ',DeltaTheta
       write(*,'(A,g10.4)')'|                        delta E = ',DeltaEnergy
       write(*,'(A)')' '
@@ -217,7 +228,7 @@ contains
   subroutine do_weight_np_loop(IterCYC)
     integer,intent(in)::IterCYC
     integer :: IterLoop
-    real(PP):: NewTheta,NewEnergy
+    real(PP):: NewTheta,NewEnergy,NewDiv
     integer :: IterNow
     real(PP):: OldTheta,OldEnergy,DeltaTheta,DeltaEnergy
 
@@ -253,8 +264,9 @@ contains
       endif
       IterNow=IterNow+1
       call ff_check(NewTheta)
+      call div_check(NewDiv)
       call calc_energy(NewEnergy)
-      call printlog(IterNow,NewTheta,NewEnergy/E0)
+      call printlog(IterNow,NewTheta,NewEnergy/E0,NewDiv)
       if(IterLoop.eq.1)then
         DeltaTheta=0.0d0
         DeltaEnergy=0.0d0
@@ -266,6 +278,7 @@ contains
       OldEnergy=NewEnergy
       write(*,'(A,g10.4)')'|                        Normalized Energy = ',NewEnergy/E0
       write(*,'(A,g10.4)')'|                        Average angle = ',NewTheta
+      write(*,'(A,g10.4)')'|                        Integral div = ',NewDiv
       write(*,'(A,g10.4)')'|                        delta theta = ',DeltaTheta
       write(*,'(A,g10.4)')'|                        delta E = ',DeltaEnergy
       write(*,'(A)')' '
@@ -275,10 +288,11 @@ contains
 !-------- the main loop for calculation --------
   subroutine do_loop_test()
     integer :: iterN
-    real(PP) :: NewTheta,NewEnergy
+    real(PP) :: NewTheta,NewEnergy,NewDiv
 
     call fftw3_laplace
     call ff_check(NewTheta)
+    call div_check(NewDiv)
     ! call calc_angle(NewTheta)
     call calc_energy(E0)
     NewEnergy=E0
@@ -286,7 +300,7 @@ contains
     print *,'               Average angle (weighted) = ',NewTheta
     print *,'               Energy/E0 = ',NewEnergy/E0
 
-    call printlog(0,NewTheta,1.0d0)
+    call printlog(0,NewTheta,1.0d0,NewDiv)
 
     do iterN=1,ncycle
       write(*,'(A)')'| '
@@ -303,8 +317,9 @@ contains
       call update_b
 
       call ff_check(NewTheta)
+      call div_check(NewDiv)
       call calc_energy(NewEnergy)
-      call printlog(iterN,NewTheta,NewEnergy/E0)
+      call printlog(iterN,NewTheta,NewEnergy/E0,NewDiv)
       print *,'               Average angle (weighted) = ',NewTheta
       print *,'               Energy/E0 = ',NewEnergy/E0
       call write_b(1,iterN)
@@ -405,8 +420,15 @@ contains
 
     call alpha_bottom(LineF,an)
     call alpha_bottom(LineB,ap)
-    if(markF.lt.0.5) an=0.0d0
-    if(markB.lt.0.5) ap=0.0d0
+    ! if(markF.lt.0.5) an=0.0d0
+    ! if(markB.lt.0.5) ap=0.0d0
+
+    if (.not.Periodic) then
+      if (mark>1.5)then
+        an=0.0d0
+        ap=0.0d0
+      endif
+    endif
 
   end subroutine calc_point
 
