@@ -100,7 +100,7 @@ ln -s ../code/cfit
 ./cfit input.par
 ```
 
-5, postprocessing codes has been proovided ./io, you can used them to read and visulize the results, examples have been provided in ./test1 and ./test2
+5, postprocessing codes has been provided ./io, you can used them to read and visulize the results, another examples for reading have been provided in ./test1 and ./test2
 ```
 >python read_cfit.py
 ```

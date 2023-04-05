@@ -380,7 +380,7 @@ contains
     character(len=144):: savename
 
     write(savename,'(A,i4.4,A,i4.4,''.dat'')') trim(OutFileName)//"B_",icyc,'_',iloop
-    write(*,'(A)')'| saving the B ...'
+    write(*,'(A)')'| Saving the B ...'
     open(4,File=savename,Access="stream",STATUS="REPLACE",&
     &Form = "unformatted" )
 
