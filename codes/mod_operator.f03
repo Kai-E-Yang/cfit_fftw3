@@ -85,12 +85,18 @@ contains
       if(n2p .gt. dimy) n2p=n2p-dimy
     else
       if(n1 .lt. 1) n1=1
+      if(n1 .gt. dimx) n1=dimx
       if(n2 .lt. 1) n2=1
+      if(n2 .gt. dimy) n2=dimy
+      if(n1p .lt. 1) n1p=1
       if(n1p .gt. dimx) n1p=dimx
+      if(n2p .lt. 1) n2p=1
       if(n2p .gt. dimy) n2p=dimy
     endif    
 
     if(n3 .lt. 1) n3=1
+    if(n3 .gt. dimz) n3 =dimz
+    if(n3p .lt. 1) n3p = 1
     if(n3p .gt. dimz) n3p=dimz
 
     xv(1,1) = bxyz(n1,n2,n3,1)
