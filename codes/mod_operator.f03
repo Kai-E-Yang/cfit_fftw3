@@ -465,6 +465,12 @@ contains
     i=floor(xindex)
     j=floor(yindex)
     k=floor(zindex)
+
+    if(i.lt.1) i=1
+    if(i.gt.dimx) i=dimx
+    if(j.lt.1) j=1
+    if(j.gt.dimy) j=dimx
+
     ! calculate the alpha component
     MaskCom(1) = alpha0(i,j)
     MaskCom(2) = alpha0(i+1,j)
