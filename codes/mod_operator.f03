@@ -550,6 +550,23 @@ contains
       ! sig00=sqrt(2.)/sqrt(1./sig0p**2+1./sig0n**2)
       ! Reverted MSW Aug 2017
       sig00=1./sqrt(1./sig0p**2+1./sig0n**2)
+
+      ! update the error
+      max_sig0=maxval(sig00)
+
+      if (alpha_error) then
+        where(bz0 .gt. 0)
+          sig0p=sig00
+        elsewhere
+          sig0p=max_sig0
+        endwhere
+        where(bz0 .lt. 0)
+          sig0n=sig00
+        elsewhere
+          sig0n=max_sig0
+        endwhere
+      endif
+      
       print *,'max(alpha0)=',maxval(alpha0)
       print *,'min(alpha0)=',minval(alpha0)
       print *,'max_sig0=',max_sig0 ! Changed MSW Aug 2017

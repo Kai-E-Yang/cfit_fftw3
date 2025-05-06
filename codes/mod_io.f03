@@ -324,7 +324,7 @@ contains
           close(3)
           write(*,'(A)')'| Data sucessfully loaded !'
         endif
-        max_sig0=maxval(sig00)
+        max_sig0=maxval(sig0)
 
         if (alpha_error) then
           where(bz0 .gt. 0)
