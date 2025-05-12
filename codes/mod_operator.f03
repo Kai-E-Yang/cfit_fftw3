@@ -530,10 +530,10 @@ contains
   end subroutine calc_energy
 
   subroutine combine_alpha
-    print *,'---'
-    print *,'Self-consistency cycle complete'
-    print *,'Constructing new alpha boundary values'
-    print *,'---'
+    write(*,'(A)')'|-------------------------------------------------------------'
+    write(*,'(A)')'| Self-consistency cycle complete'
+    write(*,'(A)')'| Constructing new alpha boundary values'
+    write(*,'(A)')'|-------------------------------------------------------------'
     alpha0=0.0
     ! sig0=0.0 ! Changed MSW Aug 2017
     if (alpha_error) then
@@ -567,11 +567,11 @@ contains
         endwhere
       endif
       
-      print *,'max(alpha0)=',maxval(alpha0)
-      print *,'min(alpha0)=',minval(alpha0)
-      print *,'max_sig0=',max_sig0 ! Changed MSW Aug 2017
-      print *,'max(sig00)=',maxval(sig00) ! Changed MSW Aug 2017
-      print *,'min(sig00)=',minval(sig00) ! Changed MSW Aug 2017
+      write(*,'(A,g10.4)')'| max(alpha0)=',maxval(alpha0)
+      write(*,'(A,g10.4)')'| min(alpha0)=',minval(alpha0)
+      write(*,'(A,g10.4)')'| max_sig0=',max_sig0 ! Changed MSW Aug 2017
+      write(*,'(A,g10.4)')'| max(sig00)=',maxval(sig00) ! Changed MSW Aug 2017
+      write(*,'(A,g10.4)')'| min(sig00)=',minval(sig00) ! Changed MSW Aug 2017
     else
        alpha0(1:dimx,1:dimy)=0.5*(alpha_p(:,:,1)+alpha_n(:,:,1))
     endif

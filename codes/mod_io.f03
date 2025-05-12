@@ -433,9 +433,9 @@ contains
     open(4,File=savename,Access="stream",STATUS="REPLACE",&
     &Form = "unformatted" )
     if (trim(precision_flag).eq.'float')then
-      write(4) real(alpha0,SP)
+      write(4) real(alpha0(1:dimx,1:dimy),SP)
     else
-      write(4) alpha0
+      write(4) alpha0(1:dimx,1:dimy)
     endif
     close(4)
   end subroutine write_alpha0

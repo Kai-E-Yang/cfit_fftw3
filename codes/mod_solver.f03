@@ -78,7 +78,7 @@ contains
         ! if (ncycle.gt.1) Polarity=Polarity*(-1)**(IterCYC+1)
         if (IterCYC.gt.1) Polarity=Polarity*(-1)
 
-        if(mod(IterCYC+1,2).eq.0)then
+        if(IterCYC.eq.1 .or. restart)then
           call read_bcs
         endif
         if (Polarity.gt.0)then
