@@ -469,7 +469,7 @@ contains
     if(i.lt.1) i=1
     if(i.gt.dimx) i=dimx
     if(j.lt.1) j=1
-    if(j.gt.dimy) j=dimx
+    if(j.gt.dimy) j=dimy
 
     ! calculate the alpha component
     MaskCom(1) = alpha0(i,j)
